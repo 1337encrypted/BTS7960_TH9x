@@ -1,34 +1,54 @@
 #include <IBusBM.h>
 IBusBM ibus;                          // Create iBus Object
 
-int R_EN1 = 2;
-int RPWM1 = 3;
-int L_EN1 = 4;
-int LPWM1 = 5;
-int RPWM2 = 6;
-int R_EN2 = 7;
-int L_EN2 = 8;
-int LPWM2 = 9;
+//Motor 1 and 2
+#define LPWM1 5
+#define RPWM1 6
+#define R_EN1 7
+#define L_EN1 8
 
+//Motor 3 and 4
+#define R_EN2 A0
+#define L_EN2 A1
+#define LPWM2 10
+#define RPWM2 9
+
+//Led and buzzer
+
+#define minSpeed 50
+bool buzzState = false;
+#define buzpin 2
+#define redLed 3
+#define blueLed A4
+
+//Transmitter channel values
 long spd = 0;
 long CH2 = 0;
 long CH3 = 0;
 long CH0 = 0;
-long CH5 = 0;                         //Switch mode
+bool CH5 = 0;                         //Switch mode
 
 void setup()
 { 
    Serial.begin(115200);             // Start serial monitor for debugging
    ibus.begin(Serial);               // Attach iBus object to serial port
-   
-   pinMode(R_EN1, OUTPUT);
-   pinMode(R_EN2, OUTPUT);
-   pinMode(RPWM1, OUTPUT);
+
+   //motor 1 and 2
    pinMode(LPWM1, OUTPUT);
-   pinMode(RPWM2, OUTPUT);
-   pinMode(LPWM2, OUTPUT);
+   pinMode(RPWM1, OUTPUT);
    pinMode(L_EN1, OUTPUT);
+   pinMode(R_EN1, OUTPUT);
+   
+   //motor 3 and 4
+   pinMode(LPWM2, OUTPUT);
+   pinMode(RPWM2, OUTPUT);
    pinMode(L_EN2, OUTPUT);
+   pinMode(R_EN2, OUTPUT);
+
+   //Buzzer and led
+   pinMode(buzpin, OUTPUT);
+   pinMode(redLed, OUTPUT);
+   pinMode(blueLed, OUTPUT);
 
    digitalWrite(R_EN1, HIGH);
    digitalWrite(L_EN1, HIGH);
@@ -36,6 +56,15 @@ void setup()
    digitalWrite(L_EN2, HIGH);
 
    Stp();
+
+   //Initilize
+   digitalWrite(buzpin, HIGH);
+   digitalWrite(redLed, HIGH);
+   digitalWrite(blueLed, HIGH);
+   delay(2);
+   digitalWrite(buzpin, LOW);
+   digitalWrite(redLed, HIGH);
+   digitalWrite(blueLed, LOW);
 }
 
 void loop()
@@ -43,65 +72,74 @@ void loop()
   // Get RC channel values
   CH0 = readChannel(0, -255, 255, 0);       // Leftshift - Rightshift
   spd = readChannel(1, 0, 255, 0);          // Speed (Acceleration)
-  CH2 = readChannel(2, -255, 255, 0);       // Forward - Reverse
-  CH3 = readChannel(3, -255, 255, 0);       // Left - Right 
+  CH3 = readChannel(2, -255, 255, 0);       // Forward - Reverse
+  CH2 = readChannel(3, -255, 255, 0);       // Left - Right 
   CH5 = readSwitch(5, false);               // CH5 Switch mode
 
+  if(spd < minSpeed && buzzState == false)
+  {
+    digitalWrite(buzpin, HIGH);
+    buzzState = true;
+  }
+  if(spd >= minSpeed && buzzState == true)
+  {
+    digitalWrite(buzpin, LOW);
+    buzzState = false;
+  }
+  
   if(CH2 > 20)
   {
-      spd = (float)(spd*CH2)/255;
+      //spd = (float)(spd*CH2)/255;
       front();
-      Serial.print("Foreward: ");
+      Serial.println("Foreward: "+spd);
   }
   else if(CH2 < -20)
   {
-    spd = abs((float)(spd*CH2)/255);
+      //spd = abs((float)(spd*CH2)/255);
       back();
-      Serial.print("Reverse: ");
+      Serial.println("Reverse: "+spd);
   }
   else if(CH3 > 20)
   {    
-    spd = (float)(spd*CH3)/255;
+      //spd = (float)(spd*CH3)/255;
       rightTurn();
-      Serial.print("Right: ");
+      Serial.println("Right: "+spd);
   }
   else if(CH3 < -20)
   {
+      //spd = abs((float)(spd*CH3)/255);
       leftTurn();
-      spd = abs((float)(spd*CH3)/255);
-      Serial.print("Left: ");
+      Serial.println("Left: "+spd);
   }
-  else if(CH0 > 20 && CH5 == 0)
+  else if(CH0 > 20 && CH5 == false)
   {
+      //spd = abs((float)(spd*CH0)/255);
       sharpRightTurn();
-      spd = abs((float)(spd*CH0)/255);
-      Serial.print("RightSharpTurn: ");
+      Serial.println("RightSharpTurn: "+spd);
   }
-  else if(CH0 < -20 && CH5 == 0)
+  else if(CH0 < -20 && CH5 == false)
   {
+      //spd = abs((float)(spd*CH0)/255);
       sharpLeftTurn();
-      spd = abs((float)(spd*CH0)/255);
-      Serial.print("LeftSharpTurn: ");
+      Serial.println("LeftSharpTurn: "+spd);
   }
-//  else if(CH0 > 100 && CH5)
-//  {
-//      sharpRightTurnBack();
-//      spd = abs((float)(spd*CH0)/255);
-//      Serial.print("RightSharpTurnBack: ");
-//  }
-//  else if(CH0 < -100 && CH5)
-//  {
-//      sharpLeftTurnBack();
-//      spd = abs((float)(spd*CH0)/255);
-//      Serial.print("LeftSharpTurnBack: ");
-//  }
+  else if(CH0 > 20 && CH5 == true)
+  {
+      //spd = abs((float)(spd*CH0)/255);
+      sharpRightTurnBack();
+      Serial.println("RightSharpTurnBack: "+spd);
+  }
+  else if(CH0 < -20 && CH5 == true)
+  {
+      //spd = abs((float)(spd*CH0)/255);
+      sharpLeftTurnBack();
+      Serial.println("LeftSharpTurnBack: "+spd);
+  }
   else 
   {
       Stp();
-      Serial.print("Stop: ");
+      Serial.println("Stop: ");
   }
-  Serial.print(spd);
-  Serial.println();
 }
 
 //Function to read the channel value
@@ -123,6 +161,10 @@ bool readSwitch(byte channelInput, bool defaultValue)
 
 void Stp()
 {
+  //LED
+  digitalWrite(redLed, HIGH);
+  digitalWrite(blueLed, LOW);
+  //Motors
   analogWrite(RPWM1,0);
   analogWrite(LPWM1,0);
   analogWrite(RPWM2,0);
@@ -131,6 +173,10 @@ void Stp()
 
 void back()
 {
+  //LED 
+  digitalWrite(redLed, LOW);
+  digitalWrite(blueLed, HIGH);
+  //Motors
   analogWrite(RPWM1,spd);
   analogWrite(LPWM1,0);
   analogWrite(RPWM2,spd);
@@ -139,6 +185,10 @@ void back()
 
 void front()
 {
+  //LED
+  digitalWrite(redLed, LOW);
+  digitalWrite(blueLed, HIGH);
+  //Motors
   analogWrite(RPWM1,0);
   analogWrite(LPWM1,spd);
   analogWrite(RPWM2,0);
@@ -147,6 +197,10 @@ void front()
 
 void leftTurn()
 {
+  //LED
+  digitalWrite(redLed, LOW);
+  digitalWrite(blueLed, HIGH);
+  //Motors
   analogWrite(RPWM1,0);
   analogWrite(LPWM1,spd);
   analogWrite(RPWM2,spd);
@@ -155,6 +209,10 @@ void leftTurn()
 
 void rightTurn()
 {
+  //LED
+  digitalWrite(redLed, LOW);
+  digitalWrite(blueLed, HIGH);
+  //Motor
   analogWrite(RPWM1,spd);
   analogWrite(LPWM1,0);
   analogWrite(RPWM2,0);
@@ -163,6 +221,22 @@ void rightTurn()
 
 void sharpRightTurn()
 {
+  //LED
+  digitalWrite(redLed, LOW);
+  digitalWrite(blueLed, HIGH);
+  //Motors
+  analogWrite(RPWM1,spd);
+  analogWrite(LPWM1,0);
+  analogWrite(RPWM2,0);
+  analogWrite(LPWM2,0);
+}
+
+void sharpLeftTurn()
+{
+  //LEd
+  digitalWrite(redLed, LOW);
+  digitalWrite(blueLed, HIGH);
+  //Motors
   analogWrite(RPWM1,0);
   analogWrite(LPWM1,0);
   analogWrite(RPWM2,0);
@@ -171,14 +245,10 @@ void sharpRightTurn()
 
 void sharpRightTurnBack()
 {
-  analogWrite(RPWM1,0);
-  analogWrite(LPWM1,spd);
-  analogWrite(RPWM2,0);
-  analogWrite(LPWM2,0);
-}
-
-void sharpLeftTurn()
-{
+  //LED
+  digitalWrite(redLed, LOW);
+  digitalWrite(blueLed, HIGH);
+  //Motors
   analogWrite(RPWM1,0);
   analogWrite(LPWM1,spd);
   analogWrite(RPWM2,0);
@@ -187,6 +257,10 @@ void sharpLeftTurn()
 
 void sharpLeftTurnBack()
 {
+  //LED
+  digitalWrite(redLed, LOW);
+  digitalWrite(blueLed, HIGH);
+  //Motors
   analogWrite(RPWM1,0);
   analogWrite(LPWM1,0);
   analogWrite(RPWM2,spd);
