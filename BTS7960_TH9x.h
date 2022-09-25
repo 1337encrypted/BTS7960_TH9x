@@ -21,24 +21,24 @@ class BTS7960_TH9x
     bool buzzState = false;           //mutex variable for setting the lock
     
     //Motor 1 and 2
-    #define LPWM1 5
-    #define RPWM1 6
     #define R_EN1 7
     #define L_EN1 8
+    #define RPWM1 6
+    #define LPWM1 5
 //  #define R_IS1   Alarm pin
 //  #define L_IS1   Alarm pin
     
     //Motor 3 and 4
     #define R_EN2 A0
     #define L_EN2 A1
-    #define LPWM2 10
     #define RPWM2 9
+    #define LPWM2 10
 //  #define R_IS2   Alarm pin
 //  #define L_IS2   Alarm pin
 
   public:
 
-  volatile int spd;                 //volatile as it shouldn't be ignored by the compiler, speed variable to control the speed
+  volatile uint8_t spd;                 //volatile as it shouldn't be ignored by the compiler, speed variable to control the speed
 
   inline BTS7960_TH9x() __attribute__((always_inline));
   inline void __initSystem() __attribute__((always_inline));    //__ internal function to the class

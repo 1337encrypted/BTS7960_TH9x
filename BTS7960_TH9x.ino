@@ -9,17 +9,17 @@ int readChannel(byte channelInput, int minLimit, int maxLimit, int defaultValue)
   uint16_t ch = ibus.readChannel(channelInput);
   if (ch < 100) return defaultValue;
   
-  //return constrain(map(ch, 1000, 2000, minLimit, maxLimit), minLimit, maxLimit);
-  map(ch, 1000, 2000, minLimit, maxLimit);
-  if(ch < 1000)
-  {
-    ch = 1000;
-  }
-  if(ch > 2000)
-  {
-    ch = 2000;
-  }
-  return ch;
+  return constrain(map(ch, 1000, 2000, minLimit, maxLimit), minLimit, maxLimit);
+//  if(ch < 1000)
+//  {
+//    ch = 1000;
+//  }
+//  if(ch > 2000)
+//  {
+//    ch = 2000;
+//  }
+//  map(ch, 1000, 2000, minLimit, maxLimit);
+//  return ch;
 }
 
 //Function to read the switch value
@@ -30,12 +30,19 @@ bool readSwitch(byte channelInput, bool defaultValue)
  return (ch > 50);
 }
 
+//Transmitter channel values alternate code 
+//car.spd = 0;
+//long CH2 = 0;
+//long CH3 = 0;
+//int CH0 = 0;
+//bool CH4 = false;                         //Switch mode
+
 //Transmitter channel values
-long spd = 0;
-long CH2 = 0;
-long CH3 = 0;
-long CH0 = 0;
-bool CH4 = 0;                         //Switch mode
+//car.spd = 0;
+int CH2 = 0;
+int CH3 = 0;
+int CH0 = 0;
+bool CH4 = false;                         //Switch mode
 
 void setup()
 { 
@@ -47,7 +54,7 @@ void loop()
 {
   // Get RC channel values
   CH0 = readChannel(0, -255, 255, 0);       // Leftshift - Rightshift
-  car.spd = readChannel(1, 0, 255, 0);          // Speed (Acceleration)
+  car.spd = readChannel(1, 0, 255, 0);      // Speed (Acceleration)
   CH3 = readChannel(2, -255, 255, 0);       // Forward - Reverse
   CH2 = readChannel(3, -255, 255, 0);       // Left - Right 
   CH4 = readSwitch(4, false);               // CH5 Switch mode
