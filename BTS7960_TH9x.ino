@@ -1,37 +1,7 @@
-#include "BTS7960_TH9x.h"
-
-IBusBM ibus;                          // Create iBus Object
-BTS7960_TH9x car;
-
-//Function to read the channel value
-int readChannel(byte channelInput, int minLimit, int maxLimit, int defaultValue)
-{
-  uint16_t ch = ibus.readChannel(channelInput);
-  if (ch < 100) return defaultValue;
-  
-  //return constrain(map(ch, 1000, 2000, minLimit, maxLimit), minLimit, maxLimit);
-  map(ch, 1000, 2000, minLimit, maxLimit);
-  if(ch < 1000)
-  {
-    ch = 1000;
-  }
-  if(ch > 2000)
-  {
-    ch = 2000;
-  }
-  return ch;
-}
-
-//Function to read the switch value
-bool readSwitch(byte channelInput, bool defaultValue)
-{
- int intDefaultValue = (defaultValue) ? 100 : 0;
- int ch = readChannel(channelInput, 0, 100, intDefaultValue);
- return (ch > 50);
-}
+#include "GLOBALS.h"
 
 //Transmitter channel values
-long spd = 0;
+//long spd = 0;
 long CH2 = 0;
 long CH3 = 0;
 long CH0 = 0;
@@ -39,81 +9,242 @@ bool CH4 = 0;                         //Switch mode
 
 void setup()
 { 
-   Serial.begin(115200);             // Start serial monitor for debugging
-   ibus.begin(Serial);               // Attach iBus object to serial port
+  Serial.begin(115200);             // Start serial monitor for debugging
+  ibus.begin(Serial);               // Attach iBus object to serial port
+  motor1.begin();
+  motor2.begin();
+  redLed.begin();
+  blueLed.begin();
+  buzz.begin();
 }
 
 void loop()
 {
   // Get RC channel values
-  CH0 = readChannel(0, -255, 255, 0);       // Leftshift - Rightshift
-  car.spd = readChannel(1, 0, 255, 0);          // Speed (Acceleration)
-  CH3 = readChannel(2, -255, 255, 0);       // Forward - Reverse
-  CH2 = readChannel(3, -255, 255, 0);       // Left - Right 
-  CH4 = readSwitch(4, false);               // CH5 Switch mode
+  CH0 = readChannel(0, -255, 255, 0);                           // Leftshift - Rightshift
+  motor1.pwm = motor2.pwm = readChannel(1, 0, 255, 0);          // Speed (Acceleration)
+  CH3 = readChannel(2, -255, 255, 0);                           // Forward - Reverse
+  CH2 = readChannel(3, -255, 255, 0);                           // Left - Right 
+  CH4 = readSwitch(4, false);                                   // CH5 Switch mode
 
-  car.lowSpeedBuzz();
 
   if(CH2 > 20)
   {
-      //spd = (float)(spd*CH2)/255;
-      car.front();
-      Serial.println("Foreward: ");
-      Serial.println(car.spd);
+      motorStatus = motorStates::FRONT;
+      buzzStatus = buzzStates::PASS;
+      ledStatus = ledStates::RUN;
   }
   else if(CH2 < -20)
   {
-      //spd = abs((float)(spd*CH2)/255);
-      car.back();
-      Serial.println("Reverse: ");
-      Serial.println(car.spd);
+      motorStatus = motorStates::BACK;
+      buzzStatus = buzzStates::PASS;
+      ledStatus = ledStates::RUN;
   }
   else if(CH3 > 20)
   {    
-      //spd = (float)(spd*CH3)/255;
-      car.rightTurn();
-      Serial.println("Right Turn: ");
-      Serial.println(car.spd);
+      motorStatus = motorStates::RIGHT;
+      buzzStatus = buzzStates::PASS;
+      ledStatus = ledStates::RUN;
   }
   else if(CH3 < -20)
   {
-      //spd = abs((float)(spd*CH3)/255);
-      car.leftTurn();
-      Serial.println("Left Turn: ");
-      Serial.println(car.spd);
+      motorStatus = motorStates::LEFT;
+      buzzStatus = buzzStates::PASS;
+      ledStatus = ledStates::RUN;
   }
   else if(CH0 > 20 && CH4 == false)
   {
-      //spd = abs((float)(spd*CH0)/255);
-      car.sharpRightTurnFront();
-      Serial.println("Sharp Right Turn Front: ");
-      Serial.println(car.spd);
+      motorStatus = motorStates::SHARPRIGHTFRONT;
+      buzzStatus = buzzStates::PASS;
+      ledStatus = ledStates::RUN;
   }
   else if(CH0 < -20 && CH4 == false)
   {
-      //spd = abs((float)(spd*CH0)/255);
-      car.sharpLeftTurnFront();
-      Serial.println("Sharp Left Turn Front: ");
-      Serial.println(car.spd);
+      motorStatus = motorStates::SHARPLEFTFRONT;
+      buzzStatus = buzzStates::PASS;
+      ledStatus = ledStates::RUN;
   }
   else if(CH0 > 20 && CH4 == true)
   {
-      //spd = abs((float)(spd*CH0)/255);
-      car.sharpRightTurnBack();
-      Serial.println("Sharp Right Turn Back: ");
-      Serial.println(car.spd);
+      motorStatus = motorStates::SHARPRIGHTBACK;
+      buzzStatus = buzzStates::PASS;
+      ledStatus = ledStates::RUN;
   }
   else if(CH0 < -20 && CH4 == true)
   {
-      //spd = abs((float)(spd*CH0)/255);
-      car.sharpLeftTurnBack();
-      Serial.print("Sharp Left Turn Back: ");
-      Serial.println(car.spd);
+      motorStatus = motorStates::SHARPLEFTBACK;
+      buzzStatus = buzzStates::PASS;
+      ledStatus = ledStates::RUN;
   }
   else 
   {
-      car.Stp();
-      Serial.print("Stop: ");
-      Serial.println(car.spd);
+      motorStatus = motorStates::STOP;
+      buzzStatus = buzzStates::PASS;
+      ledStatus = ledStates::STOP;
+  }
+
+/*==========================================================ROBOT STATE MACHINE=========================================================*/  
+  switch (motorStatus)
+  {
+    case motorStates::FRONT:
+    motor1.front(); motor2.front();
+    debug("Front: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    break;
+    
+    case motorStates::BACK:
+    motor1.back();  motor2.back();
+    debug("Back: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    break;
+    
+    case motorStates::LEFT:
+    motor1.back();  motor2.front();
+    debug("Left: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    break;
+    
+    case motorStates::RIGHT:
+    motor1.front(); motor2.back();
+    debug("Right: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    break;
+         
+    case motorStates::SHARPRIGHTFRONT:
+    motor1.front(); motor2.stop();  debug("Right shift: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    break;
+    
+    case motorStates::SHARPLEFTFRONT:
+    motor1.stop();  motor2.front(); 
+    debug("Left shift: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    break;
+   
+    case motorStates::SHARPRIGHTBACK:
+    motor1.stop();  motor2.back();
+    debug("Right Back: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    break;
+    
+    case motorStates::SHARPLEFTBACK:
+    motor1.back();  motor2.stop();
+    debug("Left Back: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    break;
+
+    case motorStates::STOP:
+    motor1.stop();  motor2.stop();
+    debug("Stop: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    break;
+
+//    case motorStates::STOPALL:
+//    standbySystem();
+//    while(true)
+//    {
+//      if(Serial.available())
+//      {
+//        initSystem();
+//        break;
+//      }
+//      else
+//        redLed.toggle();
+//    }
+//    break;
+//
+//    case motorStates::EXTRAON:                            //Same as EXTRAOFF
+//    standbySystem();
+//    while(true)
+//    {
+//      motorStatus = (motorStates)Serial.read();
+//      if(motorStates::EXTRAOFF == motorStatus)
+//      {
+//        initSystem();
+//        break;
+//      }
+//      else if(motorStates::STOPALL == motorStatus)
+//      {
+//        break;
+//      }
+//      else
+//        redLed.toggle();
+//    }
+//    break;
+//    
+//    case motorStates::EXTRAOFF:                           //Same as EXTRAON
+//    standbySystem();
+//    while(true)
+//    {
+//      motorStatus = (motorStates)Serial.read();
+//      if(motorStates::EXTRAOFF == motorStatus)
+//      {
+//        initSystem();
+//        break;
+//      }
+//      else if(motorStates::STOPALL == motorStatus)
+//      {
+//        break;
+//      }
+//      else
+//        redLed.toggle();
+//    }
+//    break;
+//
+//    case motorStates::FRONTLIGHTSON:
+//    debugln("Front lights on");
+//    //Do nothing for now
+//    break;
+//    case motorStates::FRONTLIGHTSOFF:
+//    debugln("Front lights off");
+//    //Do nothing for now
+//    break;
+//    case motorStates::BACKLIGHTSON:
+//    debugln("Back lights on");
+//    //Do nothing for now
+//    break;
+//    case motorStates::BACKLIGHTSOFF:
+//    debugln("Back lights off");
+//    //Do nothing for now
+//    break;
+//    case motorStates::HORNON:
+//    debugln("Horn on");
+//    //Do nothing for now
+//    break;
+//    case motorStates::HORNOFF:
+//    debugln("Horn off");
+//    //Do nothing for now
+//    break;
+
+    default: debugln("Invalid input");
+  }
+
+/*==========================================================BUZZER STATE MACHINE========================================================*/
+  switch (buzzStatus)
+  {
+    case buzzStates::ON:
+    buzz.on();
+    break;
+
+    case buzzStates::OFF:
+    buzz.off();
+    break;
+
+    case buzzStates::PASS:
+    //Do nothing
+    break;
+
+    default: debugln("Invalid input");
+  }
+
+/*============================================================LED STATE MACHINE=========================================================*/
+  switch (ledStatus)
+  {
+    case ledStates::STOP:
+    blueLed.off();
+    redLed.on();
+    break;
+    
+    case ledStates::RUN:
+    blueLed.on();
+    redLed.off();
+    break;
+
+    case ledStates::PASS:
+    //Do nothing
+    break;
+
+    default: debugln("Invalid input");
   }
 }
