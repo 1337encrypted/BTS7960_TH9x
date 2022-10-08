@@ -1,6 +1,5 @@
 #include "GLOBALS.h"
 
-//Transmitter channel values
 //long spd = 0;
 long CH2 = 0;
 long CH3 = 0;
@@ -26,7 +25,6 @@ void loop()
   CH3 = readChannel(2, -255, 255, 0);                           // Forward - Reverse
   CH2 = readChannel(3, -255, 255, 0);                           // Left - Right 
   CH4 = readSwitch(4, false);                                   // CH5 Switch mode
-
 
   if(CH2 > 20)
   {
