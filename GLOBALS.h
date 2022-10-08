@@ -1,4 +1,4 @@
-#include "FlySkyIBus.h"
+#include <FlySkyIBus.h>
 #include <BUZZER.h>
 #include <BTS7960_Motordriver.h>
 #include <LED.h>
@@ -9,7 +9,7 @@
  * DEBUG 1 will will add back Serial.print functions back to the code
  */
  
-#define DEBUG 1
+#define DEBUG 0
 
 #if DEBUG == 1
   #define debug(x) Serial.print(x)
