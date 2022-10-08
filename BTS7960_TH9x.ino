@@ -19,56 +19,57 @@ void setup()
 
 void loop()
 {
+  ibus.loop();
   // Get RC channel values
-  CH0 = readChannel(0, -255, 255, 0);                           // Leftshift - Rightshift
-  motor1.pwm = motor2.pwm = readChannel(1, 0, 255, 0);          // Speed (Acceleration)
-  CH3 = readChannel(2, -255, 255, 0);                           // Forward - Reverse
-  CH2 = readChannel(3, -255, 255, 0);                           // Left - Right 
-  CH4 = readSwitch(4, false);                                   // CH5 Switch mode
+  CH0 = ibus.readChannel(0);                                              // Leftshift - Rightshift
+  motor1.pwm = motor2.pwm = int((ibus.readChannel(1)-1000)*0.255);        // Speed (Acceleration)
+  CH2 = ibus.readChannel(2);                                              // Forward - Reverse
+  CH3 = ibus.readChannel(3);                                              // Left - Right 
+  CH4 = ibus.readSwitch(4);                                               // CH5 Switch mode
 
-  if(CH2 > 20)
+  if(CH2 > 1800)
   {
       motorStatus = motorStates::FRONT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH2 < -20)
+  else if(CH2 < 1200)
   {
       motorStatus = motorStates::BACK;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH3 > 20)
+  else if(CH3 > 1800)
   {    
       motorStatus = motorStates::RIGHT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH3 < -20)
+  else if(CH3 < 1200)
   {
       motorStatus = motorStates::LEFT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH0 > 20 && CH4 == false)
+  else if(CH0 > 1800 && CH4 == false)
   {
       motorStatus = motorStates::SHARPRIGHTFRONT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH0 < -20 && CH4 == false)
+  else if(CH0 < 1200 && CH4 == false)
   {
       motorStatus = motorStates::SHARPLEFTFRONT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH0 > 20 && CH4 == true)
+  else if(CH0 > 1800 && CH4 == true)
   {
       motorStatus = motorStates::SHARPRIGHTBACK;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH0 < -20 && CH4 == true)
+  else if(CH0 < 1200 && CH4 == true)
   {
       motorStatus = motorStates::SHARPLEFTBACK;
       buzzStatus = buzzStates::PASS;
@@ -105,22 +106,23 @@ void loop()
     break;
          
     case motorStates::SHARPRIGHTFRONT:
-    motor1.front(); motor2.stop();  debug("Right shift: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    motor1.front(); motor2.stop();
+    debug("Sharp Right Front: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::SHARPLEFTFRONT:
     motor1.stop();  motor2.front(); 
-    debug("Left shift: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    debug("Sharp Left Front: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
    
     case motorStates::SHARPRIGHTBACK:
     motor1.stop();  motor2.back();
-    debug("Right Back: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    debug("Sharp Right Back: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::SHARPLEFTBACK:
     motor1.back();  motor2.stop();
-    debug("Left Back: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
+    debug("Sharp Left Back: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
 
     case motorStates::STOP:

@@ -1,4 +1,4 @@
-#include <IBusBM.h>
+#include "FlySkyIBus.h"
 #include <BUZZER.h>
 #include <BTS7960_Motordriver.h>
 #include <LED.h>
@@ -9,7 +9,7 @@
  * DEBUG 1 will will add back Serial.print functions back to the code
  */
  
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG == 1
   #define debug(x) Serial.print(x)
@@ -48,7 +48,7 @@ BTS7960 motor2(L_EN2, R_EN2, RPWM2, LPWM2);                           //Create a
 led redLed(redLedPin);                                                //Create object for red led
 led blueLed(blueLedPin);                                              //Create object for blue led
 buzzer buzz(buzzpin);                                                 //Create object for buzzer
-IBusBM ibus;                                                          // Create iBus Object
+FlySkyIBus ibus;                                                      // Create iBus Object
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++MOTOR STATES++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 enum class motorStates : uint8_t
@@ -94,8 +94,6 @@ ledStates ledStatus = ledStates::PASS;                            //Led state in
 /*==================================================Function prototyping section========================================================*/
 inline void initSystem() __attribute__((always_inline));
 inline void standbySystem() __attribute__((always_inline));
-inline int readChannel(byte,int,int,int) __attribute__((always_inline));
-inline bool readSwitch(byte,bool) __attribute__((always_inline));
 /*======================================================================================================================================*/
 
 void initSystem()
@@ -119,23 +117,6 @@ void standbySystem()
   blueLed.off();  redLed.off();
   motor1.disable(); motor2.disable();
   buzz.deinitBuzzer();  
-}
-
-//Function to read the channel value
-int readChannel(byte channelInput, int minLimit, int maxLimit, int defaultValue)
-{
-  uint16_t ch = ibus.readChannel(channelInput);
-  if (ch < 100) return defaultValue;
-  
-  return constrain(map(ch, 1000, 2000, minLimit, maxLimit), minLimit, maxLimit);
-}
-
-//Function to read the switch value
-bool readSwitch(byte channelInput, bool defaultValue)
-{
- int intDefaultValue = (defaultValue) ? 100 : 0;
- int ch = readChannel(channelInput, 0, 100, intDefaultValue);
- return (ch > 50);
 }
 
 //namespaces here
