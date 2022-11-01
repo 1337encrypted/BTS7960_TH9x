@@ -1,11 +1,5 @@
 #include "GLOBALS.h"
 
-//long spd = 0;
-long CH2 = 0;
-long CH3 = 0;
-long CH0 = 0;
-bool CH4 = 0;                         //Switch mode
-
 void setup()
 { 
   Serial.begin(115200);             // Start serial monitor for debugging
@@ -15,61 +9,72 @@ void setup()
   redLed.begin();
   blueLed.begin();
   buzz.begin();
+
+  initSystem();
 }
 
 void loop()
 {
-  ibus.loop();
-  // Get RC channel values
-  CH0 = ibus.readChannel(0);                                              // Leftshift - Rightshift
-  motor1.pwm = motor2.pwm = int((ibus.readChannel(1)-1000)*0.255);        // Speed (Acceleration)
-  CH2 = ibus.readChannel(2);                                              // Forward - Reverse
-  CH3 = ibus.readChannel(3);                                              // Left - Right 
-  CH4 = ibus.readSwitch(4);                                               // CH5 Switch mode
+//  ibus.loop();
+//  // Flysky Th9x
+//  CH0 = ibus.readChannel(0);                                              // Leftshift - Rightshift
+//  motor1.pwm = motor2.pwm = int((ibus.readChannel(1)-1000)*0.255);        // Speed (Acceleration)
+//  CH2 = ibus.readChannel(2);                                              // Forward - Reverse
+//  CH3 = ibus.readChannel(3);                                              // Left - Right 
+//  CH4 = ibus.readSwitch(4);                                               // CH5 Switch mode
 
-  if(CH2 > 1800)
+  ibus.loop();
+  // Radiomaster TXI6S
+  CH0 = ibus.readChannel(0);                                                // Leftshift - Rightshift
+  motor1.pwm = motor2.pwm = int((ibus.readChannel(2)-1000)*0.255);          // Speed (Acceleration)
+  CH2 = ibus.readChannel(1);                                                // Forward - Reverse
+  CH3 = ibus.readChannel(3);                                                // Left - Right 
+  CH4 = ibus.readSwitch(4);                                                 // CH4 Switch mode
+  CH5 = ibus.readSwitch(5);                                                 // CH5 on off switch
+
+  if(CH2 > deadzoneUpperLimit)
   {
       motorStatus = motorStates::FRONT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH2 < 1200)
+  else if(CH2 < deadzoneLowerLimit)
   {
       motorStatus = motorStates::BACK;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH3 > 1800)
+  else if(CH3 > deadzoneUpperLimit)
   {    
       motorStatus = motorStates::RIGHT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH3 < 1200)
+  else if(CH3 < deadzoneLowerLimit)
   {
       motorStatus = motorStates::LEFT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH0 > 1800 && CH4 == false)
+  else if(CH0 > deadzoneUpperLimit && CH4 == false)
   {
       motorStatus = motorStates::SHARPRIGHTFRONT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH0 < 1200 && CH4 == false)
+  else if(CH0 < deadzoneLowerLimit && CH4 == false)
   {
       motorStatus = motorStates::SHARPLEFTFRONT;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH0 > 1800 && CH4 == true)
+  else if(CH0 > deadzoneUpperLimit && CH4 == true)
   {
       motorStatus = motorStates::SHARPRIGHTBACK;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::RUN;
   }
-  else if(CH0 < 1200 && CH4 == true)
+  else if(CH0 < deadzoneLowerLimit && CH4 == true)
   {
       motorStatus = motorStates::SHARPLEFTBACK;
       buzzStatus = buzzStates::PASS;
@@ -80,6 +85,11 @@ void loop()
       motorStatus = motorStates::STOP;
       buzzStatus = buzzStates::PASS;
       ledStatus = ledStates::STOP;
+  }
+
+  if(CH5==false)
+  {
+    motorStatus = motorStates::STOPALL;
   }
 
 /*==========================================================ROBOT STATE MACHINE=========================================================*/  
@@ -130,58 +140,26 @@ void loop()
     debug("Stop: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
 
-//    case motorStates::STOPALL:
-//    standbySystem();
-//    while(true)
-//    {
-//      if(Serial.available())
-//      {
-//        initSystem();
-//        break;
-//      }
-//      else
-//        redLed.toggle();
-//    }
+    case motorStates::STOPALL:
+    standbySystem();
+    while(true)
+    {
+      if(CH5==true)
+      {
+        initSystem();
+        break;
+      }
+      else
+        redLed.toggle();
+    }
+    break;
+
+//    case motorStates::EXTRAON:                        
+//    debugln("Extra on");
 //    break;
-//
-//    case motorStates::EXTRAON:                            //Same as EXTRAOFF
-//    standbySystem();
-//    while(true)
-//    {
-//      motorStatus = (motorStates)Serial.read();
-//      if(motorStates::EXTRAOFF == motorStatus)
-//      {
-//        initSystem();
-//        break;
-//      }
-//      else if(motorStates::STOPALL == motorStatus)
-//      {
-//        break;
-//      }
-//      else
-//        redLed.toggle();
-//    }
+//    case motorStates::EXTRAOFF:                          
+//    debugln("Extra off");
 //    break;
-//    
-//    case motorStates::EXTRAOFF:                           //Same as EXTRAON
-//    standbySystem();
-//    while(true)
-//    {
-//      motorStatus = (motorStates)Serial.read();
-//      if(motorStates::EXTRAOFF == motorStatus)
-//      {
-//        initSystem();
-//        break;
-//      }
-//      else if(motorStates::STOPALL == motorStatus)
-//      {
-//        break;
-//      }
-//      else
-//        redLed.toggle();
-//    }
-//    break;
-//
 //    case motorStates::FRONTLIGHTSON:
 //    debugln("Front lights on");
 //    //Do nothing for now
