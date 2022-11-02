@@ -25,7 +25,7 @@ long CH0 = 0;
 long CH2 = 0;
 long CH3 = 0;
 bool CH4 = false;                         //Switch mode
-bool CH5 = false;
+bool CH6 = false;                         //On off switch
 
 //Transmitter default values settings
 constexpr uint16_t deadzoneLowerLimit = 1200;
