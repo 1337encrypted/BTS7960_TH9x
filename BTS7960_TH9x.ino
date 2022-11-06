@@ -16,23 +16,24 @@ void setup()
 void loop()
 {
   ibus.loop();
-  // Flysky Th9x
-  CH0 = ibus.readChannel(0);                                              // Leftshift - Rightshift
-  motor1.pwm = motor2.pwm = int((ibus.readChannel(1)-1000)*0.255);        // Speed (Acceleration)
-  CH2 = ibus.readChannel(2);                                              // Forward - Reverse
-  CH3 = ibus.readChannel(3);                                              // Left - Right 
-  CH4 = ibus.readSwitch(4);                                               // CH4 Switch mode
-  //CH5 is same as CH0
-  CH6 = ibus.readSwitch(6);                                               // CH6 on off switch
 
-//  ibus.loop();
+  
+  // Flysky Th9x
+  CH0 = ibus.readChannel(0);                                                  // Leftshift - Rightshift
+  motor1.pwm = motor2.pwm = int((ibus.readChannel(1)-1000)*0.255);            // Speed (Acceleration)
+  CH2 = ibus.readChannel(2);                                                  // Forward - Reverse
+  CH3 = ibus.readChannel(3);                                                  // Left - Right 
+  CH4 = ibus.readSwitch(4);                                                   // CH4 Switch mode
+  //CH5 is same as CH0
+  CH6 = ibus.readSwitch(6);                                                   // CH6 on off switch
+
 //  // Radiomaster TXI6S
 //  CH0 = ibus.readChannel(0);                                                // Leftshift - Rightshift
 //  motor1.pwm = motor2.pwm = int((ibus.readChannel(2)-1000)*0.255);          // Speed (Acceleration)
 //  CH2 = ibus.readChannel(1);                                                // Forward - Reverse
 //  CH3 = ibus.readChannel(3);                                                // Left - Right 
 //  CH4 = ibus.readSwitch(4);                                                 // CH4 Switch mode
-//  CH5 = ibus.readSwitch(5);                                                 // CH5 on off switch (Check it once)
+//  CH5 = ibus.readSwitch(5);                                                 // CH6 on off switch (Check it once)
 
   if(CH2 > deadzoneUpperLimit)
   {
@@ -147,7 +148,7 @@ void loop()
     while(true)
     {
       ibus.loop();
-      CH6 = ibus.readSwitch(6);                                                 // CH5 on off switch
+      CH6 = ibus.readSwitch(6);                                                 // CH6 on off switch
       if(CH6 == false)
       {
         initSystem();

@@ -1,31 +1,16 @@
 #include <FlySkyIBus.h>
-#include <BUZZER.h>
-#include <BTS7960_Motordriver.h>
-#include <LED.h>
+#include "BUZZER.h"
+#include "BTS7960_Motordriver.h"
+#include "LED.h"
+#include "CONFIG.h"
 
-/* 
- * Debug on and off enables code optimization
- * DEBUG 0 will ignore all Serial.print functions
- * DEBUG 1 will will add back Serial.print functions back to the code
- */
- 
-#define DEBUG 1
-
-#if DEBUG == 1
-  #define debug(x) Serial.print(x)
-  #define debugln(x) Serial.println(x)
-#else
-  #define debug(x)
-  #define debugln(x) 
-#endif
-
-//Transmitter channels
-//long spd = 0;
-long CH0 = 0;
-long CH2 = 0;
-long CH3 = 0;
-bool CH4 = false;                         //Switch mode
-bool CH6 = false;                         //On off switch
+//Transmitter channels (previously uint16_t was long for all transmitter variables)
+//uint16_t spd = 0;
+uint16_t CH0 = 0;
+uint16_t CH2 = 0;
+uint16_t CH3 = 0;
+bool CH4 = false;                   //Switch mode
+bool CH6 = false;                   //on off switch
 
 //Transmitter default values settings
 constexpr uint16_t deadzoneLowerLimit = 1200;
@@ -45,7 +30,7 @@ constexpr uint8_t L_EN2 = A1;
 constexpr uint8_t RPWM2 = 9;        //PWM 980hz
 constexpr uint8_t LPWM2 = 10;       //PWM 490hz
 //constexpr uint8_t R_IS2           //Alarm pin
-//constexpr uint8_t L_IS2           //Alarm pin                        //Key for the switch case
+//constexpr uint8_t L_IS2           //Alarm pin
 
 //Led definition section
 constexpr uint8_t redLedPin = A4;   //use between 150 ohms to 330 ohms resistor
@@ -82,7 +67,7 @@ enum class motorStates : uint8_t
    HORNON = 'V',
    HORNOFF = 'v',
    EXTRAON = 'X',
-   EXTRAOFF = 'x',
+   EXTRAOFF = 'x'
 };
 motorStates motorStatus = motorStates::STOPALL;                        //State variable set to STOP initially
 //motorStates motorPrevStatus;                                         //Previous motor state
