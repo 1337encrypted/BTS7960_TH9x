@@ -1,9 +1,12 @@
 /*Cannot create a .cpp file as inline prototypes need the function to be present in the same file as they are defined*/
-
 #ifndef led_h
 #define led_h
 
-#include "CONFIG.h"
+#if (ARDUINO >= 100) 
+  #include "Arduino.h"
+#else
+  #include "WProgram.h"
+#endif
 
 class led
 {

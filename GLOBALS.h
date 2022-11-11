@@ -1,7 +1,7 @@
 #include <FlySkyIBus.h>
-#include "BUZZER.h"
+#include <BUZZER.h>
 #include "BTS7960_Motordriver.h"
-#include "LED.h"
+#include <LED.h>
 #include "CONFIG.h"
 
 //Transmitter channels (previously uint16_t was long for all transmitter variables)
