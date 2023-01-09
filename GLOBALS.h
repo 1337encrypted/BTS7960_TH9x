@@ -72,22 +72,6 @@ enum class motorStates : uint8_t
 motorStates motorStatus = motorStates::STOPALL;                        //State variable set to STOP initially
 //motorStates motorPrevStatus;                                         //Previous motor state
 
-enum class buzzStates : uint8_t
-{
-  OFF,
-  ON,
-  PASS
-};
-buzzStates buzzStatus = buzzStates::PASS;                              //Buzzer state initilally is set to pass
-
-enum class ledStates : uint8_t
-{
-  STOP,
-  RUN,
-  PASS
-};
-ledStates ledStatus = ledStates::PASS;                                 //Led state initilally is set to pass
-
 /*==================================================Function prototyping section========================================================*/
 inline void initSystem() __attribute__((always_inline));
 inline void standbySystem() __attribute__((always_inline));
@@ -109,8 +93,6 @@ void initSystem()
 
   //Initial statemachine setting
   motorStatus = motorStates::STOP;                                    //State variable set to STOP initially
-  buzzStates buzzStatus = buzzStates::PASS;                           //Buzzer state initilally is set to pass
-  ledStates ledStatus = ledStates::STOP;                              //Led state initilally is set to pass 
 }
 
 void standbySystem()

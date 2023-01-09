@@ -20,6 +20,7 @@ class buzzer
   inline ~buzzer() __attribute__((always_inline));
   inline void initBuzzer() __attribute__((always_inline));
   inline void deinitBuzzer() __attribute__((always_inline));
+  inline void alarm() __attribute__((always_inline));
   inline void on() __attribute__((always_inline));
   inline void off() __attribute__((always_inline));
 };
@@ -37,6 +38,9 @@ buzzer::buzzer(const uint8_t buzzpin)
 {
   //Initilize the buzzer
   this->buzzpin = buzzpin;
+
+  //Begin and enable happens after object construction
+  begin();
 }
 
 //Destructor
@@ -71,6 +75,11 @@ void buzzer::deinitBuzzer()
   tone(buzzpin, 500, 100);
   delay(150);  
   noTone(buzzpin);
+}
+
+void buzzer::alarm()
+{
+  tone(buzzpin, 1000, 100);
 }
 
 void buzzer::off()

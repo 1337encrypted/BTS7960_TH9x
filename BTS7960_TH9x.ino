@@ -4,11 +4,11 @@ void setup()
 { 
   Serial.begin(115200);             // Start serial monitor for debugging
   ibus.begin(Serial);               // Attach iBus object to serial port
-  motor1.begin();
-  motor2.begin();
-  redLed.begin();
-  blueLed.begin();
-  buzz.begin();
+  //motor1.begin();
+  //motor2.begin();
+  //redLed.begin();
+  //blueLed.begin();
+  //buzz.begin();
 
   initSystem();
 }
@@ -38,56 +38,38 @@ void loop()
   if(CH2 > deadzoneUpperLimit)
   {
       motorStatus = motorStates::FRONT;
-      buzzStatus = buzzStates::PASS;
-      ledStatus = ledStates::RUN;
   }
   else if(CH2 < deadzoneLowerLimit)
   {
       motorStatus = motorStates::BACK;
-      buzzStatus = buzzStates::PASS;
-      ledStatus = ledStates::RUN;
   }
   else if(CH3 > deadzoneUpperLimit)
   {    
       motorStatus = motorStates::RIGHT;
-      buzzStatus = buzzStates::PASS;
-      ledStatus = ledStates::RUN;
   }
   else if(CH3 < deadzoneLowerLimit)
   {
       motorStatus = motorStates::LEFT;
-      buzzStatus = buzzStates::PASS;
-      ledStatus = ledStates::RUN;
   }
   else if(CH0 > deadzoneUpperLimit && CH4 == false)
   {
       motorStatus = motorStates::SHARPRIGHTFRONT;
-      buzzStatus = buzzStates::PASS;
-      ledStatus = ledStates::RUN;
   }
   else if(CH0 < deadzoneLowerLimit && CH4 == false)
   {
       motorStatus = motorStates::SHARPLEFTFRONT;
-      buzzStatus = buzzStates::PASS;
-      ledStatus = ledStates::RUN;
   }
   else if(CH0 > deadzoneUpperLimit && CH4 == true)
   {
       motorStatus = motorStates::SHARPRIGHTBACK;
-      buzzStatus = buzzStates::PASS;
-      ledStatus = ledStates::RUN;
   }
   else if(CH0 < deadzoneLowerLimit && CH4 == true)
   {
       motorStatus = motorStates::SHARPLEFTBACK;
-      buzzStatus = buzzStates::PASS;
-      ledStatus = ledStates::RUN;
   }
   else 
   {
       motorStatus = motorStates::STOP;
-      buzzStatus = buzzStates::PASS;
-      ledStatus = ledStates::STOP;
   }
 
   if(CH6 == true)
@@ -100,46 +82,64 @@ void loop()
   {
     case motorStates::FRONT:
     motor1.front(); motor2.front();
+    blueLed.on();
+    redLed.off();
     debug("Front: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::BACK:
     motor1.back();  motor2.back();
+    blueLed.on();
+    redLed.off();
     debug("Back: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::LEFT:
     motor1.back();  motor2.front();
+    blueLed.on();
+    redLed.off();
     debug("Left: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::RIGHT:
     motor1.front(); motor2.back();
+    blueLed.on();
+    redLed.off();
     debug("Right: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
          
     case motorStates::SHARPRIGHTFRONT:
     motor1.front(); motor2.stop();
+    blueLed.on();
+    redLed.off();
     debug("Sharp Right Front: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::SHARPLEFTFRONT:
-    motor1.stop();  motor2.front(); 
+    motor1.stop();  motor2.front();
+    blueLed.on();
+    redLed.off(); 
     debug("Sharp Left Front: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
    
     case motorStates::SHARPRIGHTBACK:
     motor1.stop();  motor2.back();
+    blueLed.on();
+    redLed.off();
     debug("Sharp Right Back: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::SHARPLEFTBACK:
     motor1.back();  motor2.stop();
+    blueLed.on();
+    redLed.off();
     debug("Sharp Left Back: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
 
     case motorStates::STOP:
     motor1.stop();  motor2.stop();
+    blueLed.off();
+    redLed.on();
     debug("Stop: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
 
@@ -189,44 +189,6 @@ void loop()
 //    debugln("Horn off");
 //    //Do nothing for now
 //    break;
-
-    default: debugln("Invalid input");
-  }
-
-/*==========================================================BUZZER STATE MACHINE========================================================*/
-  switch (buzzStatus)
-  {
-    case buzzStates::ON:
-    buzz.on();
-    break;
-
-    case buzzStates::OFF:
-    buzz.off();
-    break;
-
-    case buzzStates::PASS:
-    //Do nothing
-    break;
-
-    default: debugln("Invalid input");
-  }
-
-/*============================================================LED STATE MACHINE=========================================================*/
-  switch (ledStatus)
-  {
-    case ledStates::STOP:
-    blueLed.off();
-    redLed.on();
-    break;
-    
-    case ledStates::RUN:
-    blueLed.on();
-    redLed.off();
-    break;
-
-    case ledStates::PASS:
-    //Do nothing
-    break;
 
     default: debugln("Invalid input");
   }
