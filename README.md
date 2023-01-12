@@ -8,7 +8,9 @@
 
 
 <h3> Class UML for Motordriver  class</h3>
-![BTS7960 motordriver class](https://user-images.githubusercontent.com/69661689/211991207-60aa0380-cf17-4eef-bb3d-ed41985196a3.jpg)
+
+![BTS7960 motordriver class](https://user-images.githubusercontent.com/69661689/211991435-f267d4c4-64c6-429c-a4c9-81d8ad8c39f5.jpg)
+
 
 
 <h2> UML diagrams for State model </h2>
