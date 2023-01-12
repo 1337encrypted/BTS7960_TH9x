@@ -42,6 +42,9 @@ led::led(uint8_t ledPin)
 {
   //Initilize the ledPin pins
   this->ledPin = ledPin;
+  
+  //Begin and enable happens after object construction
+  begin();
 }
 
 //Destructor
