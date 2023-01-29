@@ -30,4 +30,8 @@
 
 <h3> UML Activity model </h3>
 
-![Activity diagram](https://github.com/1337encrypted/BTS7960_TH9x/blob/b86a5a6f625587bd98b036edf2fd0d6f1c0dfa9e/Assets/Activity%20diagram.jpg)
+![Activity diagram](https://user-images.githubusercontent.com/46808309/215308777-8573bebb-869a-493f-8cdf-73382f4b9234.png)
+
+
+
+
