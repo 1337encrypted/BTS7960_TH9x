@@ -1,7 +1,7 @@
-#include <FlySkyIBus.h>
-#include <BUZZER.h>
+#include "FlySkyIBus.h"
+#include "BUZZER.h"
 #include "BTS7960_Motordriver.h"
-#include <LED.h>
+#include "LED.h"
 #include "CONFIG.h"
 
 //Transmitter channels (previously uint16_t was long for all transmitter variables)
@@ -12,25 +12,25 @@ uint16_t CH3 = 0;
 bool CH4 = false;                   //Switch mode
 bool CH6 = false;                   //on off switch
 
-//Transmitter default values settings
+//Transmitter -1 values settings
 constexpr uint16_t deadzoneLowerLimit = 1200;
 constexpr uint16_t deadzoneUpperLimit = 1800;
 
 //BTS7960 motor driver 2 pin definitions
 constexpr uint8_t R_EN1 = 7;  
 constexpr uint8_t L_EN1 = 8;
-constexpr uint8_t RPWM1 = 6;        //PWM 490hz
-constexpr uint8_t LPWM1 = 5;        //PWM 980hz
-//constexpr uint8_t R_IS1           //Alarm pin
-//constexpr uint8_t L_IS1           //Alarm pin
+constexpr uint8_t LPWM1 = 6;              //PWM 490hz
+constexpr uint8_t RPWM1 = 5;              //PWM 980hz
+constexpr uint8_t R_IS1 = -1;        //Alarm pin
+constexpr uint8_t L_IS1 = -1;        //Alarm pin
 
 //BTS7960 motor driver 2 pin definitions
 constexpr uint8_t R_EN2 = A0;
 constexpr uint8_t L_EN2 = A1;
-constexpr uint8_t RPWM2 = 9;        //PWM 980hz
-constexpr uint8_t LPWM2 = 10;       //PWM 490hz
-//constexpr uint8_t R_IS2           //Alarm pin
-//constexpr uint8_t L_IS2           //Alarm pin
+constexpr uint8_t RPWM2 = 9;              //PWM 980hz
+constexpr uint8_t LPWM2 = 10;             //PWM 490hz
+constexpr uint8_t R_IS2 = -1;        //Alarm pin
+constexpr uint8_t L_IS2 = -1;        //Alarm pin
 
 //Led definition section
 constexpr uint8_t redLedPin = A4;   //use between 150 ohms to 330 ohms resistor
@@ -41,8 +41,8 @@ constexpr uint8_t blueLedPin = 3;
 
 /*=====================================================  Object declaration=============================================================*/
 FlySkyIBus ibus;                                                      // Create iBus Object
-BTS7960 motor1(L_EN1, R_EN1, LPWM1, RPWM1);                           //Create an object of class motor1
-BTS7960 motor2(L_EN2, R_EN2, RPWM2, LPWM2);                           //Create an object of class motor2 should have been LPWM2, RPWM2
+BTS7960 motor1(L_EN1, R_EN1, LPWM1, RPWM1, L_IS1, R_IS1, false);      //Create an object of class motor1
+BTS7960 motor2(L_EN2, R_EN2, RPWM2, LPWM2, L_IS1, R_IS2, false);      //Create an object of class motor2 should have been LPWM2, RPWM2
 led redLed(redLedPin);                                                //Create object for red led
 led blueLed(blueLedPin);                                              //Create object for blue led
 buzzer buzz(buzzpin);                                                 //Create object for buzzer
