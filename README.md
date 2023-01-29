@@ -1,6 +1,6 @@
 # BTS7960_TH9x
 
-<h2> UML Diagrams of Classes </h2>
+<h2> Classes </h2>
 
 <h3> Class UML for LED class</h3>
 
@@ -22,6 +22,12 @@
 ![FlySkyIBus class](https://user-images.githubusercontent.com/92455878/211993085-6cc6b9d1-125e-41d5-9332-b4f45d217e7f.jpg)
 
 
-<h2> UML diagrams for State model </h2>
+<h2> State model </h2>
 
 ![state model](https://user-images.githubusercontent.com/46808309/211621040-78289efd-3654-426f-a306-12250067f671.png)
+
+<h2> Interaction model </h2>
+
+<h3> UML Activity model </h3>
+
+![Activity diagram](https://github.com/1337encrypted/BTS7960_TH9x/blob/b86a5a6f625587bd98b036edf2fd0d6f1c0dfa9e/Assets/Activity%20diagram.jpg)
