@@ -28,6 +28,11 @@
 
 <h2> Interaction model </h2>
 
+<h3> UML Sequence Diagram </h3>
+
+![Sequence Diagram](https://user-images.githubusercontent.com/92455878/215335890-6e2c8f3b-72a8-4387-8236-2547c37adcd8.jpg)
+
+
 <h3> UML Activity model </h3>
 
 ![Activity diagram](https://user-images.githubusercontent.com/46808309/215308777-8573bebb-869a-493f-8cdf-73382f4b9234.png)
