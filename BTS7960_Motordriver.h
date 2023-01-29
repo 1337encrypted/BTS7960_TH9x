@@ -10,97 +10,123 @@
 
 /*Cannot create a .cpp file as  prototypes need the function to be present in the same file*/
 
-#ifndef BTS7960_H
-#define BTS7960_H
+#ifndef BTS7960_h
+#define BTS7960_h
 
-#include"CONFIG.h"
+#if (ARDUINO >= 100)
+    #include "Arduino.h"
+#else
+    #include "WProgram.h"
+#endif
 
 class BTS7960
 {
     private:
-    //L_IS1,R_IS1 are not included
-    uint8_t L_EN;
     uint8_t R_EN;
-    uint8_t L_PWM;
+    uint8_t L_EN;
     uint8_t R_PWM;
-    //uint8_t L_IS;
-    //uint8_t R_IS;
-        
+    uint8_t L_PWM;
+    uint8_t R_IS;
+    uint8_t L_IS;
+//    bool _debug;
+//    static String version;
     public:
+
     //pwm variable to control the speed of motor
     volatile uint8_t pwm;
     
     /*=============================================Function prototyping section=====================================================*/
-    //inline BTS7960() __attribute__((always_inline));
-    //inline BTS7960(uint8_t, uint8_t) __attribute__((always_inline));
-    inline BTS7960(uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1) __attribute__((always_inline));
-    //inline BTS7960(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline));
+    inline BTS7960(uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1, bool=false); // L_EN, R_EN, L_PWM, R_PWM, L_IS, R_IS, _debug
     inline void begin() __attribute__((always_inline));
     inline void enable() __attribute__((always_inline));
     inline void disable() __attribute__((always_inline));
-    inline void stop() __attribute__((always_inline));
     inline void front() __attribute__((always_inline));
     inline void back() __attribute__((always_inline));
+    inline void stop() __attribute__((always_inline));
+    inline void alarm() __attribute__((always_inline));
     inline ~BTS7960() __attribute__((always_inline));
     /*===============================================================================================================================*/
 };
 
-//Parametrised constructor with 4 parameters, this disables L_IS and R_IS.
-BTS7960::BTS7960(uint8_t L_PWM, uint8_t R_PWM, uint8_t L_EN, uint8_t R_EN)
+//Parametrised constructor with 6 parameters (still need to work on it, avoid it for right now)
+BTS7960::BTS7960(uint8_t L_EN, uint8_t R_EN, uint8_t L_PWM, uint8_t R_PWM, uint8_t L_IS, uint8_t R_IS, bool _debug)
 {
     //Motor driver 1 pin definitions
-    this->L_PWM = L_PWM;    //pin 5 has PWM frequency of 980Hz
-    this->R_PWM = R_PWM;    //pin 6 has PWM frequency of 980Hz
     this->L_EN = L_EN;
     this->R_EN = R_EN;
-
+    this->L_PWM = L_PWM;    //pin 5 has PWM frequency of 980Hz
+    this->R_PWM = R_PWM;    //pin 6 has PWM frequency of 980Hz
+    this->L_IS = L_IS;      //Alarm pin
+    this->R_IS = R_IS;      //Alarm pin
+//    this->_debug = _debug;   //for seial monitor display
+    
     //Set the global pwm variable to 255
     this->pwm = 255;
-
-    //Begin and enable happens after object construction
+//    this->version = "1.0.0";
+    
+//    if(this->_debug)
+//    {
+//        Serial.println("BTS7960 Motordriver library");
+//        Serial.print("Library version:");
+//        Serial.println(this->version);
+//        Serial.println("Yash Herekar 2022");
+//    }
+    
     begin();
+    enable();
 }
 
 void BTS7960::begin()
 {
-    
+    //Motor driver enable pins set as output and high
+    if(this->L_EN != -1 && this->R_EN != -1)
+    {
+      pinMode(this->R_EN, OUTPUT);
+      pinMode(this->L_EN, OUTPUT);
+    }
+
     //PWM is for direction and pwm
-    if(this->L_PWM>0 && this->R_PWM>0)
+    if(this->L_PWM != -1 && this->R_PWM != -1)
     {
         pinMode(this->L_PWM, OUTPUT);
         pinMode(this->R_PWM, OUTPUT);
     }
-    else
+    
+    //R_IS and L_IS alarm pins
+    if(this->R_IS != -1 && this->L_IS != -1)
     {
-        debugln("L_PWM and R_PWM are not set as output");
+        pinMode(this->R_IS, INPUT);
+        pinMode(this->L_IS, INPUT);
     }
     
-    //Motor driver enable pins set as output and high
-    if(this->L_EN>0 && this->R_EN>0)
-    {
-        pinMode(this->L_EN, OUTPUT);
-        pinMode(this->R_EN, OUTPUT);
-        enable();
-    }
-    else
-    {
-        debugln("L_EN and R_EN pins not set as output");
-    }
+//    if(this->_debug)
+//    {
+//        Serial.println("Motor driver initilized");
+//    }
 }
 
 void BTS7960::enable()
 {
     //Setting the BTS7960 enable pins high
-    digitalWrite(this->L_EN, HIGH);
     digitalWrite(this->R_EN, HIGH);
-
+    digitalWrite(this->L_EN, HIGH);
+    
+//    if(this->_debug)
+//    {
+//        Serial.println("Motor driver enabled");
+//    }
 }
 
 void BTS7960::disable()
 {
     //Setting the BTS7960 enable pins high
-    digitalWrite(L_EN, LOW);
-    digitalWrite(R_EN, LOW);
+    digitalWrite(this->R_EN, LOW);
+    digitalWrite(this->L_EN, LOW);
+    
+//    if(this->_debug)
+//    {
+//        Serial.println("Motor driver disabled");
+//    }
 }
 
 void BTS7960::stop()
@@ -108,48 +134,67 @@ void BTS7960::stop()
     analogWrite(this->L_PWM,0);
     analogWrite(this->R_PWM,0);
     
-    //R_EN is HIGH then set it low, else dont
-    if(digitalRead(this->L_EN))
-    {
-        disable();
-        debugln("disbale");
-    }
+//    if(this->_debug)
+//    {
+//        Serial.print("Stop: ");
+//        Serial.println(L_PWM);
+//        Serial.print(" : ");
+//        Serial.print(R_PWM);
+//    }
 }
 
 void BTS7960::front()
 {
-    //R_EN is LOW then set it high, else dont
-    if(!digitalRead(this->L_EN))
-    {
-        enable();
-        debugln("enable");
-    }
-    
     analogWrite(this->L_PWM,0);
-    //delayMicroseconds(100);
+//    delayMicroseconds(100);
     analogWrite(this->R_PWM,pwm);
-    //delayMicroseconds(100);
+//    delayMicroseconds(100);
+    
+//    if(this->_debug)
+//    {
+//        Serial.print("Front: ");
+//        Serial.println(L_PWM);
+//        Serial.print(" : ");
+//        Serial.print(R_PWM);
+//    }
 }
 
 void BTS7960::back()
 {
-    //R_EN is LOW then set it high, else dont
-    if(!digitalRead(this->L_EN))
-    {
-        enable();
-        debugln("enable");
-    }
-    
     analogWrite(this->L_PWM,pwm);
-    //delayMicroseconds(100);
+//    delayMicroseconds(100);
     analogWrite(this->R_PWM,0);
-    //delayMicroseconds(100);
+//    delayMicroseconds(100);
+    
+//    if(this->_debug)
+//    {
+//        Serial.print("Front: ");
+//        Serial.println(L_PWM);
+//        Serial.print(" : ");
+//        Serial.print(R_PWM);
+//    }
+}
+
+void BTS7960::alarm()
+{
+    if(digitalRead(L_IS) || digitalRead(R_IS))
+    {
+        disable();
+        
+//        if(_debug)
+//        {
+//            Serial.print("High current alarm");
+//        }
+    }
 }
 
 //Destructor
 BTS7960::~BTS7960()
 {
-  debugln("motor object destroyed");
+//    if(this->_debug)
+//    {
+//        Serial.println("motor object destroyed");
+//    }
 }
 
 #endif  //END BTS7960_H
