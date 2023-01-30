@@ -28,6 +28,11 @@
 
 <h2> Interaction model </h2>
 
+<h3> Use Case Diagram </h3>
+
+![useCaseDiagram drawio (1)](https://user-images.githubusercontent.com/69661689/215400975-ffae2d7d-cfd3-4674-821a-5fa913346e73.png)
+
+
 <h3> UML Sequence Diagram </h3>
 
 ![Sequence Diagram](https://user-images.githubusercontent.com/92455878/215335890-6e2c8f3b-72a8-4387-8236-2547c37adcd8.jpg)
