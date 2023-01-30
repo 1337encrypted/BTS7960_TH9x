@@ -8,6 +8,7 @@
 
 
 <h3> Class UML for Motordriver  class</h3>
+![useCaseDiagram drawio ](https://user-images.githubusercontent.com/69661689/215404304-428a9c83-b03e-4cd2-94c1-75a3a92f4e0f.png)
 
 ![BTS7960 motordriver class](https://user-images.githubusercontent.com/69661689/211991435-f267d4c4-64c6-429c-a4c9-81d8ad8c39f5.jpg)
 
@@ -30,7 +31,8 @@
 
 <h3> Use Case Diagram </h3>
 
-![useCaseDiagram drawio (1)](https://user-images.githubusercontent.com/69661689/215400975-ffae2d7d-cfd3-4674-821a-5fa913346e73.png)
+![useCaseDiagram drawio ](https://user-images.githubusercontent.com/69661689/215404369-5dbd491d-0b89-4ff9-9d39-f25e9f6207e5.png)
+
 
 
 <h3> UML Sequence Diagram </h3>
