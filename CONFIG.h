@@ -10,17 +10,20 @@
   #include "WProgram.h"
 #endif
 
-#define DEBUG 0
-#define MOTORDEBUG 0
-
-#if MOTORDEBUG == 1
-DEBUG == 0
-#endif
+#define DEBUG 1
 
 #if DEBUG == 1
   #define debug(x) Serial.print(x)
   #define debugln(x) Serial.println(x)
+  #define MOTORDEBUG true
+  #define LEDDEBUG true
+  #define BUZZERDEBUG true
+  #define SYSTEMDEBUG true
 #else
   #define debug(x)
   #define debugln(x) 
+  #define MOTORDEBUG false
+  #define LEDDEBUG false
+  #define BUZZERDEBUG false
+  #define SYSTEMDEBUG false
 #endif

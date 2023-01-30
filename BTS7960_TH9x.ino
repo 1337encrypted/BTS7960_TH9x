@@ -4,12 +4,6 @@ void setup()
 { 
   Serial.begin(115200);             // Start serial monitor for debugging
   ibus.begin(Serial);               // Attach iBus object to serial port
-  //motor1.begin();
-  //motor2.begin();
-  //redLed.begin();
-  //blueLed.begin();
-  //buzz.begin();
-
   initSystem();
 }
 
@@ -35,35 +29,35 @@ void loop()
 //  CH4 = ibus.readSwitch(4);                                                 // CH4 Switch mode
 //  CH5 = ibus.readSwitch(5);                                                 // CH6 on off switch (Check it once)
 
-  if(CH2 > deadzoneUpperLimit)
+  if(CH2 > 1800)
   {
       motorStatus = motorStates::FRONT;
   }
-  else if(CH2 < deadzoneLowerLimit)
+  else if(CH2 < 1200 && CH2 > 0)
   {
       motorStatus = motorStates::BACK;
   }
-  else if(CH3 > deadzoneUpperLimit)
+  else if(CH3 > 1800)
   {    
       motorStatus = motorStates::RIGHT;
   }
-  else if(CH3 < deadzoneLowerLimit)
+  else if(CH3 < 1200 && CH3 > 0)
   {
       motorStatus = motorStates::LEFT;
   }
-  else if(CH0 > deadzoneUpperLimit && CH4 == false)
+  else if(CH0 > 1800 && CH4 == false)
   {
       motorStatus = motorStates::SHARPRIGHTFRONT;
   }
-  else if(CH0 < deadzoneLowerLimit && CH4 == false)
+  else if(CH0 < 1200 && CH0 > 0 && CH4 == false)
   {
       motorStatus = motorStates::SHARPLEFTFRONT;
   }
-  else if(CH0 > deadzoneUpperLimit && CH4 == true)
+  else if(CH0 > 1800 && CH4 == true)
   {
       motorStatus = motorStates::SHARPRIGHTBACK;
   }
-  else if(CH0 < deadzoneLowerLimit && CH4 == true)
+  else if(CH0 < 1200 && CH0 > 0 && CH4 == true)
   {
       motorStatus = motorStates::SHARPLEFTBACK;
   }
@@ -81,66 +75,84 @@ void loop()
   switch (motorStatus)
   {
     case motorStates::FRONT:
-    motor1.front(); motor2.front();
+    debug("Front: ");
+    motor1.front(); 
+    debug(" : ");
+    motor2.front();
     blueLed.on();
     redLed.off();
-    debug("Front: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::BACK:
-    motor1.back();  motor2.back();
+    debug("Back: ");
+    motor1.back();  
+    debug(" : ");
+    motor2.back();
     blueLed.on();
     redLed.off();
-    debug("Back: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::LEFT:
-    motor1.back();  motor2.front();
+    debug("Left: ");
+    motor1.back();
+    debug(" : ");
+    motor2.front();
     blueLed.on();
     redLed.off();
-    debug("Left: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::RIGHT:
-    motor1.front(); motor2.back();
+    debug("Right: ");
+    motor1.front();
+    debug(" : ");
+    motor2.back();
     blueLed.on();
     redLed.off();
-    debug("Right: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
          
     case motorStates::SHARPRIGHTFRONT:
-    motor1.front(); motor2.stop();
+    debug("Sharp Right Front: ");
+    motor1.front();
+    debug(" : ");
+    motor2.stop();
     blueLed.on();
     redLed.off();
-    debug("Sharp Right Front: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::SHARPLEFTFRONT:
-    motor1.stop();  motor2.front();
+    debug("Sharp Left Front: ");
+    motor1.stop();
+    debug(" : ");
+    motor2.front();
     blueLed.on();
     redLed.off(); 
-    debug("Sharp Left Front: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
    
     case motorStates::SHARPRIGHTBACK:
-    motor1.stop();  motor2.back();
+    debug("Sharp Right Back: ");
+    motor1.stop();
+    debug(" : ");
+    motor2.back();
     blueLed.on();
     redLed.off();
-    debug("Sharp Right Back: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
     
     case motorStates::SHARPLEFTBACK:
-    motor1.back();  motor2.stop();
+    debug("Sharp Left Back: ");
+    motor1.back();
+    debug(" : ");
+    motor2.stop();
     blueLed.on();
     redLed.off();
-    debug("Sharp Left Back: "); debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
 
     case motorStates::STOP:
-    motor1.stop();  motor2.stop();
+    debug("Stop: ");
+    motor1.stop();
+    debug(" : ");
+    motor2.stop();
     blueLed.off();
     redLed.on();
-    debug("Stop: ");  debug(motor1.pwm);  debug(" : "); debugln(motor2.pwm);
     break;
 
     case motorStates::STOPALL:
@@ -192,4 +204,5 @@ void loop()
 
     default: debugln("Invalid input");
   }
+  debugln();
 }

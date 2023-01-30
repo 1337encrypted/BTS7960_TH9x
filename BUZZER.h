@@ -10,34 +10,34 @@
 
 class buzzer
 {
-  public: 
+  private: 
+  String buzzId;
   uint8_t buzzpin;
-    
+  bool _debug;
+
+  public:
   //Function prototype
-//  inline buzzer() __attribute__((always_inline));
   inline void begin() __attribute__((always_inline));
-  inline buzzer(uint8_t) __attribute__((always_inline));
+  inline buzzer(const uint8_t=-1, const String="", bool=false) __attribute__((always_inline));
   inline ~buzzer() __attribute__((always_inline));
   inline void initBuzzer() __attribute__((always_inline));
   inline void deinitBuzzer() __attribute__((always_inline));
   inline void alarm() __attribute__((always_inline));
   inline void on() __attribute__((always_inline));
   inline void off() __attribute__((always_inline));
+  inline void printInfo() __attribute__((always_inline));
+	
 };
 
 
-////Default constructor
-//buzzer::buzzer()
-//{
-//  //Initilize the buzzer
-//  this->buzzpin = A5;
-//}
 
 //Parametrized constructor
-buzzer::buzzer(const uint8_t buzzpin)
+buzzer::buzzer(const uint8_t buzzpin, const String buzzId, bool debug)
 {
   //Initilize the buzzer
   this->buzzpin = buzzpin;
+  this->_debug = debug;
+  this->buzzId = buzzId;
 
   //Begin and enable happens after object construction
   begin();
@@ -96,6 +96,12 @@ void buzzer::on()
     tone(buzzpin, 1000, 100);
     buzzMillis = millis();  
   }
+}
+
+void buzzer::printInfo()
+{
+	Serial.println(this->buzzId+" object initilized");
+	delay(1000);
 }
 
 #endif  //END BUZZER_H

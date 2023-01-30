@@ -10,26 +10,23 @@
 
 class led
 {
-  public:
+  private:
   //ledPin pins for function feedback
   uint8_t ledPin;
+  bool debug;
+  String ledId;
 
+  public:
   //Function prototypes
-  inline led() __attribute__((always_inline));
-  inline led(uint8_t) __attribute__((always_inline));
+  inline led(const uint8_t=-1, const String="", bool=false) __attribute__((always_inline));
   inline ~led() __attribute__((always_inline));
   inline void begin() __attribute__((always_inline));
   inline void on() __attribute__((always_inline));
   inline void off() __attribute__((always_inline));
   inline void toggle() __attribute__((always_inline));
+  inline void printInfo() __attribute__((always_inline));
 };
 
-////Default constructor
-//led::led()
-//{
-//  //Initilize the ledPin pins
-//  this->ledPin = 13;
-//}
 
 void led::begin()
 {
@@ -38,11 +35,12 @@ void led::begin()
 }
 
 //parametrized constructor
-led::led(uint8_t ledPin)
+led::led(const uint8_t ledPin, const String ledId, bool debug)
 {
   //Initilize the ledPin pins
   this->ledPin = ledPin;
-  
+  this->debug = debug;
+  this->ledId = ledId;
   //Begin and enable happens after object construction
   begin();
 }
@@ -50,7 +48,8 @@ led::led(uint8_t ledPin)
 //Destructor
 led::~led()
 {
-  Serial.println("led object destroyed");
+  if(this->debug)
+    Serial.println(this->ledId+" object destroyed");
 }
 
 void led::on()
@@ -73,4 +72,11 @@ void led::toggle()
     ledMillis = millis();  
   }
 }
+
+void led::printInfo()
+{
+	Serial.println(ledId+" object initilized");
+	delay(1000);
+}
+
 #endif  //END led_h

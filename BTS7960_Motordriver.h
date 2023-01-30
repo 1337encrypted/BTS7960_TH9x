@@ -28,15 +28,16 @@ class BTS7960
     uint8_t L_PWM;
     uint8_t R_IS;
     uint8_t L_IS;
-//    bool _debug;
-//    static String version;
+    bool debug;
+    String id;
+    String version;
     public:
 
     //pwm variable to control the speed of motor
     volatile uint8_t pwm;
     
     /*=============================================Function prototyping section=====================================================*/
-    inline BTS7960(uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1, bool=false); // L_EN, R_EN, L_PWM, R_PWM, L_IS, R_IS, _debug
+    inline BTS7960(uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1, uint8_t=-1, String id = "", bool=false); // L_EN, R_EN, L_PWM, R_PWM, L_IS, R_IS, _debug
     inline void begin() __attribute__((always_inline));
     inline void enable() __attribute__((always_inline));
     inline void disable() __attribute__((always_inline));
@@ -44,12 +45,16 @@ class BTS7960
     inline void back() __attribute__((always_inline));
     inline void stop() __attribute__((always_inline));
     inline void alarm() __attribute__((always_inline));
+    inline void printPWM() __attribute__((always_inline));
+    inline void printInfo() __attribute__((always_inline));
+    inline void printDriverStatus() __attribute__((always_inline));
+    
     inline ~BTS7960() __attribute__((always_inline));
     /*===============================================================================================================================*/
 };
 
 //Parametrised constructor with 6 parameters (still need to work on it, avoid it for right now)
-BTS7960::BTS7960(uint8_t L_EN, uint8_t R_EN, uint8_t L_PWM, uint8_t R_PWM, uint8_t L_IS, uint8_t R_IS, bool _debug)
+BTS7960::BTS7960(uint8_t L_EN, uint8_t R_EN, uint8_t L_PWM, uint8_t R_PWM, uint8_t L_IS, uint8_t R_IS, String id, bool debug)
 {
     //Motor driver 1 pin definitions
     this->L_EN = L_EN;
@@ -58,19 +63,13 @@ BTS7960::BTS7960(uint8_t L_EN, uint8_t R_EN, uint8_t L_PWM, uint8_t R_PWM, uint8
     this->R_PWM = R_PWM;    //pin 6 has PWM frequency of 980Hz
     this->L_IS = L_IS;      //Alarm pin
     this->R_IS = R_IS;      //Alarm pin
-//    this->_debug = _debug;   //for seial monitor display
+    this->debug = debug;   //for seial monitor display
     
     //Set the global pwm variable to 255
     this->pwm = 255;
-//    this->version = "1.0.0";
-    
-//    if(this->_debug)
-//    {
-//        Serial.println("BTS7960 Motordriver library");
-//        Serial.print("Library version:");
-//        Serial.println(this->version);
-//        Serial.println("Yash Herekar 2022");
-//    }
+
+    this->id = id;
+    this->version = "1.0.0";
     
     begin();
     enable();
@@ -98,11 +97,6 @@ void BTS7960::begin()
         pinMode(this->R_IS, INPUT);
         pinMode(this->L_IS, INPUT);
     }
-    
-//    if(this->_debug)
-//    {
-//        Serial.println("Motor driver initilized");
-//    }
 }
 
 void BTS7960::enable()
@@ -110,11 +104,6 @@ void BTS7960::enable()
     //Setting the BTS7960 enable pins high
     digitalWrite(this->R_EN, HIGH);
     digitalWrite(this->L_EN, HIGH);
-    
-//    if(this->_debug)
-//    {
-//        Serial.println("Motor driver enabled");
-//    }
 }
 
 void BTS7960::disable()
@@ -123,10 +112,10 @@ void BTS7960::disable()
     digitalWrite(this->R_EN, LOW);
     digitalWrite(this->L_EN, LOW);
     
-//    if(this->_debug)
-//    {
-//        Serial.println("Motor driver disabled");
-//    }
+    if(this->debug)
+    {
+        Serial.println("Motor driver disabled");
+    }
 }
 
 void BTS7960::stop()
@@ -134,13 +123,7 @@ void BTS7960::stop()
     analogWrite(this->L_PWM,0);
     analogWrite(this->R_PWM,0);
     
-//    if(this->_debug)
-//    {
-//        Serial.print("Stop: ");
-//        Serial.println(L_PWM);
-//        Serial.print(" : ");
-//        Serial.print(R_PWM);
-//    }
+    printPWM();
 }
 
 void BTS7960::front()
@@ -149,14 +132,7 @@ void BTS7960::front()
 //    delayMicroseconds(100);
     analogWrite(this->R_PWM,pwm);
 //    delayMicroseconds(100);
-    
-//    if(this->_debug)
-//    {
-//        Serial.print("Front: ");
-//        Serial.println(L_PWM);
-//        Serial.print(" : ");
-//        Serial.print(R_PWM);
-//    }
+    printPWM();
 }
 
 void BTS7960::back()
@@ -165,14 +141,8 @@ void BTS7960::back()
 //    delayMicroseconds(100);
     analogWrite(this->R_PWM,0);
 //    delayMicroseconds(100);
-    
-//    if(this->_debug)
-//    {
-//        Serial.print("Front: ");
-//        Serial.println(L_PWM);
-//        Serial.print(" : ");
-//        Serial.print(R_PWM);
-//    }
+
+    printPWM();
 }
 
 void BTS7960::alarm()
@@ -181,20 +151,53 @@ void BTS7960::alarm()
     {
         disable();
         
-//        if(_debug)
-//        {
-//            Serial.print("High current alarm");
-//        }
+        if(debug)
+        {
+            Serial.print("High current alarm");
+        }
     }
+}
+
+//PrintPWM
+void BTS7960::printPWM()
+{
+  if(this->debug)
+    {
+        Serial.print(pwm);
+    }  
+}
+
+void BTS7960::printInfo()
+{
+  if(this->debug)
+    {
+        Serial.println();
+        Serial.println("BTS7960 Motordriver library");
+        Serial.print("Library version:");
+        Serial.println(this->version);
+        Serial.println("Yash Herekar 2022");
+
+        delay(1000);
+        
+    }
+}
+
+void BTS7960::printDriverStatus()
+{
+  if(this->debug)
+  {
+    Serial.println(this->id+" initilized and enabled");
+    delay(1000);
+  }
 }
 
 //Destructor
 BTS7960::~BTS7960()
 {
-//    if(this->_debug)
-//    {
-//        Serial.println("motor object destroyed");
-//    }
+    if(this->debug)
+    {
+        Serial.println("motor object destroyed");
+    }
 }
 
 #endif  //END BTS7960_H
