@@ -96,7 +96,7 @@ void initSystem()
 
   if(initOnce && SYSTEMDEBUG)
   {
-    motor1.printInfo();
+    BTS7960::printInfo();
     debugln();
 
     buzz.alarm();

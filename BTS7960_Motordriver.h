@@ -30,7 +30,7 @@ class BTS7960
     uint8_t L_IS;
     bool debug;
     String id;
-    String version;
+    static String version;
     public:
 
     //pwm variable to control the speed of motor
@@ -46,12 +46,16 @@ class BTS7960
     inline void stop() __attribute__((always_inline));
     inline void alarm() __attribute__((always_inline));
     inline void printPWM() __attribute__((always_inline));
-    inline void printInfo() __attribute__((always_inline));
     inline void printDriverStatus() __attribute__((always_inline));
+    inline static void printInfo() __attribute__((always_inline));
     
     inline ~BTS7960() __attribute__((always_inline));
     /*===============================================================================================================================*/
 };
+
+//Static variables initilisation
+
+    String BTS7960::version="";
 
 //Parametrised constructor with 6 parameters (still need to work on it, avoid it for right now)
 BTS7960::BTS7960(uint8_t L_EN, uint8_t R_EN, uint8_t L_PWM, uint8_t R_PWM, uint8_t L_IS, uint8_t R_IS, String id, bool debug)
@@ -169,24 +173,20 @@ void BTS7960::printPWM()
 
 void BTS7960::printInfo()
 {
-  if(this->debug)
-    {
-        Serial.println();
-        Serial.println("BTS7960 Motordriver library");
-        Serial.print("Library version:");
-        Serial.println(this->version);
-        Serial.println("Yash Herekar 2022");
-
-        delay(1000);
-        
-    }
+  Serial.println();
+  Serial.println("BTS7960 Motordriver library");
+  Serial.print("Library version:");
+  Serial.println(version);
+  Serial.println("Yash Herekar 2022");
+  
+  delay(1000);
 }
 
 void BTS7960::printDriverStatus()
 {
   if(this->debug)
   {
-    Serial.println(this->id+" initilized and enabled");
+    Serial.println(id+" initilized and enabled");
     delay(1000);
   }
 }
