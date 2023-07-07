@@ -6,30 +6,34 @@
 
 // Miscellaneous variables
 bool initOnce = true;
+const unsigned int DISCONNECT_TIMEOUT = 2000;  // Timeout duration in milliseconds
+unsigned long currentTime = 0;
+unsigned long lastReceiveTime = 0;
+bool connOnce = true;
 
 //Transmitter channels (previously uint16_t was long for all transmitter variables)
 //uint16_t spd = 0;
-uint16_t CH0 = 0;
+//uint16_t CH0 = 0;
 uint16_t CH2 = 0;
-uint16_t CH3 = 0;
-bool CH4 = false;                     //Switch mode
+//uint16_t CH3 = 0;
+//bool CH4 = false;                     //Switch mode
 bool CH6 = false;                     //on off switch
 
 //BTS7960 motor driver 2 pin definitions
-const String leftMotorsId = "Left Motors";
+const String leftMotorsId = "Left Motor";
+constexpr uint8_t RPWM1 = 5;         //PWM 980hz
+constexpr uint8_t LPWM1 = 6;         //PWM 490hz
 constexpr uint8_t R_EN1 = 7;  
 constexpr uint8_t L_EN1 = 8;
-constexpr uint8_t LPWM1 = 6;         //PWM 490hz
-constexpr uint8_t RPWM1 = 5;         //PWM 980hz
 constexpr uint8_t R_IS1 = -1;        //Alarm pin
 constexpr uint8_t L_IS1 = -1;        //Alarm pin
 
 //BTS7960 motor driver 2 pin definitions
-const String rightMotorsId = "Right Motors";
-constexpr uint8_t R_EN2 = A0;
-constexpr uint8_t L_EN2 = A1;
+const String rightMotorsId = "Right Motor";
 constexpr uint8_t RPWM2 = 9;         //PWM 980hz
 constexpr uint8_t LPWM2 = 10;        //PWM 490hz
+constexpr uint8_t R_EN2 = 11;
+constexpr uint8_t L_EN2 = 12;
 constexpr uint8_t R_IS2 = -1;        //Alarm pin
 constexpr uint8_t L_IS2 = -1;        //Alarm pin
 
@@ -38,7 +42,7 @@ constexpr uint8_t L_IS2 = -1;        //Alarm pin
 
 //LED1
 const String redLedId = "Red Led";
-constexpr uint8_t redLedPin = A4;
+constexpr uint8_t redLedPin = 4;
 
 //LED2
 const String blueLedId = "Blue Led";
@@ -46,7 +50,7 @@ constexpr uint8_t blueLedPin = 3;
 
 //Buzzer definition section
 const String buzzId = "Buzzer";
-#define buzzpin 2 //Active buzzer use 100 ohms resistor
+constexpr uint8_t buzzpin = 2; //Active buzzer use 100 ohms resistor
 
 /*=====================================================  Object declaration=============================================================*/
 FlySkyIBus ibus;                                                      // Create iBus Object
@@ -69,6 +73,7 @@ enum class motorStates : uint8_t
    SHARPRIGHTBACK = 'J',
    STOP = 'S',
    STOPALL = 'D',
+   DISCONNECT = 'Q',
    FRONTLIGHTSON = 'W',
    FRONTLIGHTSOFF = 'w',
    BACKLIGHTSON = 'U',
@@ -136,10 +141,17 @@ void initSystem()
 
 void standbySystem()
 {
-  debugln("Receiver disconnected...");
   motor1.disable(); motor2.disable();
   blueLed.off();  redLed.off();
-  buzz.deinitBuzzer();  
+  if(motorStatus == motorStates::STOPALL)
+  {
+    debugln("Receiver standby mode...");
+    buzz.deinitBuzzer();  
+  }
+  else if(motorStatus == motorStates::DISCONNECT)
+  {
+    Serial.println("Transmitter disconnected");
+  }
 }
 
 //namespaces here

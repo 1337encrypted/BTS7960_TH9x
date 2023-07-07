@@ -31,6 +31,7 @@ class BTS7960
     bool debug;
     String id;
     static String version;
+
     public:
 
     //pwm variable to control the speed of motor
@@ -82,25 +83,13 @@ BTS7960::BTS7960(uint8_t L_EN, uint8_t R_EN, uint8_t L_PWM, uint8_t R_PWM, uint8
 void BTS7960::begin()
 {
     //Motor driver enable pins set as output and high
-    if(this->L_EN != -1 && this->R_EN != -1)
-    {
-      pinMode(this->R_EN, OUTPUT);
-      pinMode(this->L_EN, OUTPUT);
-    }
+    if(this->L_EN > 0)    pinMode(this->R_EN, OUTPUT);
+    if(this->R_EN > 0)    pinMode(this->L_EN, OUTPUT);
+    if(this->L_PWM > 0)   pinMode(this->L_PWM, OUTPUT);
+    if(this->R_PWM > 0)   pinMode(this->R_PWM, OUTPUT);
+    if(this->R_IS > 0)    pinMode(this->R_IS, INPUT);
+    if(this->L_IS > 0)    pinMode(this->L_IS, INPUT);
 
-    //PWM is for direction and pwm
-    if(this->L_PWM != -1 && this->R_PWM != -1)
-    {
-        pinMode(this->L_PWM, OUTPUT);
-        pinMode(this->R_PWM, OUTPUT);
-    }
-    
-    //R_IS and L_IS alarm pins
-    if(this->R_IS != -1 && this->L_IS != -1)
-    {
-        pinMode(this->R_IS, INPUT);
-        pinMode(this->L_IS, INPUT);
-    }
 }
 
 void BTS7960::enable()
@@ -108,6 +97,7 @@ void BTS7960::enable()
     //Setting the BTS7960 enable pins high
     digitalWrite(this->R_EN, HIGH);
     digitalWrite(this->L_EN, HIGH);
+    if(this->debug)   Serial.println("Motor driver enabled");
 }
 
 void BTS7960::disable()
@@ -115,37 +105,30 @@ void BTS7960::disable()
     //Setting the BTS7960 enable pins high
     digitalWrite(this->R_EN, LOW);
     digitalWrite(this->L_EN, LOW);
-    
-    if(this->debug)
-    {
-        Serial.println("Motor driver disabled");
-    }
+    if(this->debug)   Serial.println("Motor driver disabled");
 }
 
 void BTS7960::stop()
 {
     analogWrite(this->L_PWM,0);
     analogWrite(this->R_PWM,0);
-    
+    delayMicroseconds(100);
     printPWM();
 }
 
 void BTS7960::front()
 {
     analogWrite(this->L_PWM,0);
-//    delayMicroseconds(100);
     analogWrite(this->R_PWM,pwm);
-//    delayMicroseconds(100);
+    delayMicroseconds(100);
     printPWM();
 }
 
 void BTS7960::back()
 {
     analogWrite(this->L_PWM,pwm);
-//    delayMicroseconds(100);
     analogWrite(this->R_PWM,0);
-//    delayMicroseconds(100);
-
+    delayMicroseconds(100);
     printPWM();
 }
 
@@ -154,21 +137,14 @@ void BTS7960::alarm()
     if(digitalRead(L_IS) || digitalRead(R_IS))
     {
         disable();
-        
-        if(debug)
-        {
-            Serial.print("High current alarm");
-        }
+        if(debug)   Serial.print("High current alarm");
     }
 }
 
 //PrintPWM
 void BTS7960::printPWM()
 {
-  if(this->debug)
-    {
-        Serial.print(pwm);
-    }  
+  if(this->debug)   Serial.print(pwm); 
 }
 
 void BTS7960::printInfo()
@@ -186,7 +162,7 @@ void BTS7960::printDriverStatus()
 {
   if(this->debug)
   {
-    Serial.println(id+" initilized and enabled");
+    Serial.println(id+" initilized");
     delay(1000);
   }
 }
@@ -194,10 +170,7 @@ void BTS7960::printDriverStatus()
 //Destructor
 BTS7960::~BTS7960()
 {
-    if(this->debug)
-    {
-        Serial.println("motor object destroyed");
-    }
+    if(this->debug)   Serial.println("motor object destroyed");
 }
 
 #endif  //END BTS7960_H
