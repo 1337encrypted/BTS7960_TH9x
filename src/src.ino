@@ -57,11 +57,11 @@ void loop()
   // }
 
   // if (currentTime - lastReceiveTime >= DISCONNECT_TIMEOUT) 
-  if(ibus.readChannel(0) == 0)
-  {
-    motorStatus = motorStates::DISCONNECT;
-    // connOnce = true;
-  } 
+  // if(ibus.readChannel(0) == 0)
+  // {
+  //   motorStatus = motorStates::DISCONNECT;
+  //   // connOnce = true;
+  // } 
   // else
   // {
   //   lastReceiveTime = currentTime;
@@ -116,24 +116,24 @@ void loop()
     }
     break;
 
-    case motorStates::DISCONNECT:
-    standbySystem();
-    while(true)
-    {
-      ibus.loop();
-      if(ibus.readChannel(0) > 0)
-      {
-        initSystem();
-        return;
-      }
-      else
-      {
-        redLed.toggle();
-        blueLed.toggle();
-        buzz.nonBlockToneInit();
-      }
-    }
-    break;
+    // case motorStates::DISCONNECT:
+    // standbySystem();
+    // while(true)
+    // {
+    //   ibus.loop();
+    //   if(ibus.readChannel(0) > 0)
+    //   {
+    //     initSystem();
+    //     return;
+    //   }
+    //   else
+    //   {
+    //     redLed.toggle();
+    //     blueLed.toggle();
+    //     buzz.nonBlockToneInit();
+    //   }
+    // }
+    // break;
 
     default: debugln("Invalid input");
   }
